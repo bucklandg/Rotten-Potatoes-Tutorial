@@ -1,10 +1,6 @@
 const express = require('express')
 const app = express()
 
-// app.get('/', (req, res) => {
-//   res.render('home', {msg: 'handlebars are Cool!'});
-// })
-
 app.listen(3000, () => {
   console.log('App listening on port 3000!')
 })
@@ -15,31 +11,45 @@ var exphbs = require('express-handlebars');
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
+// CONNECT TO DATABASE
+
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/rotten-potatoes', {useNewUrlParser: true});
 
 const Review = mongoose.model('Review', {
   title: String,
+  rate: Number,
+  description: String,
   movieTitle: String
 })
 
+// NEW
+app.get('/reviews/new', (req, res) => {
+  res.render('reviews-new', {});
+})
 
-// OUR MOCK ARRAY OF PROJECTS
-// let reviews = [
-//   {title: "Great Review", movieTitle: "Batman II"},
-//   {title: "Awesome Movie", movieTitle: "Titanic"},
-//   {title: "Let's go Fuckers!", movieTitle: "Trailer Park Boys", body: "Lorem ipsum doloret sit amet"}
-// ]
+// INITIALIZE BODY-PARSER AND ADD IT TO APP
+const bodyParser = require('body-parser');
+
+// The following line must appear AFTER const app = express() and before your routes!
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// CREATE
+app.post('/reviews', (req, res) => {
+  Review.create(req.body).then((review) => {
+    console.log(review);
+    res.redirect('/');
+  }).catch((err) => {
+    console.log(err.message);
+  })
+})
 
 // INDEX
 app.get('/', (req, res) => {
-  // .find method return a PROMISE, and it is an object that represents a value that will be provided in the future
-  Review.find()
-  // With .then method we provide a function if the Promise resolves, and it happen once the data comes back from the database
+  Review.find().lean()
     .then(reviews => {
       res.render('reviews-index', { reviews: reviews });
     })
-    // With .catch method we provide a function if the Promise is rejected
     .catch(err => {
       console.log(err);
     })

@@ -1,7 +1,11 @@
 <!-- reviews-index -->
 <h1>Reviews</h1>
+
+<a href="/reviews/new">New Review</a>
+
 {{#each reviews}}
   <h2>{{this.title}}</h2>
   <small>{{this.movieTitle}}</small>
-  <article>{{this.body}}</article>
+  <div class="rate">Rate: {{this.rate}}</div>
+  <article>{{this.description}}</article>
 {{/each}}
